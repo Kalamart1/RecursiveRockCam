@@ -1,3 +1,6 @@
+# Version 1.0.1
+- Made the effect toggleable via ModUI
+
 # Version 1.0.0
 - Created
 

@@ -3,19 +3,24 @@ using Il2CppRUMBLE.Players;
 using MelonLoader;
 using RumbleModdingAPI;
 using UnityEngine;
+using RumbleModUI;
 
 namespace RecursiveRockCam;
 
 public static class BuildInfo
 {
     public const string ModName = "RecursiveRockCam";
-    public const string ModVersion = "1.0.0";
+    public const string ModVersion = "1.0.1";
     public const string Description = "Makes the Rock Cam screen visible in Rock Cam";
     public const string Author = "Kalamart";
     public const string Company = "";
 }
 public partial class MainClass : MelonMod
 {
+    public static Mod Mod = new Mod();
+    public static bool screenVisible = true;
+    public static GameObject screen = null;
+
     /**
     * <summary>
     * Log to console.
@@ -45,26 +50,95 @@ public partial class MainClass : MelonMod
     }
 
     /**
+     * <summary>
+     * Specify the different options that will be used in the ModUI settings
+     * </summary>
+     */
+    private void InitModUI()
+    {
+        UI.instance.UI_Initialized += OnUIInit;
+        SetUIOptions();
+    }
+
+    /**
+     * <summary>
+     * Specify the different options that will be used in the ModUI settings
+     * </summary>
+     */
+    private void SetUIOptions()
+    {
+        Mod.ModName = BuildInfo.ModName;
+        Mod.ModVersion = BuildInfo.ModVersion;
+
+        Mod.SetFolder(BuildInfo.ModName);
+        Mod.AddToList("Screen visible", true, 0, "Make Rock Cam screen visible in Rock Cam recordings.", new Tags { });
+        Mod.GetFromFile();
+    }
+
+    /**
+     * <summary>
+     * Called when the actual ModUI window is initialized
+     * </summary>
+     */
+    private void OnUIInit()
+    {
+        Mod.ModSaved += OnUISaved;
+        UI.instance.AddMod(Mod);
+    }
+
+    /**
+     * <summary>
+     * Called when the user saves a configuration in ModUI
+     * </summary>
+     */
+    private void OnUISaved()
+    {
+        updateRockCamScreen();
+    }
+
+    /**
     * <summary>
     * Called when the scene has finished loading.
     * </summary>
     */
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {
-        editRockCamScreen();
+        if (sceneName == "Loader")
+        {
+            InitModUI();
+            return;
+        }
+        screen = null;
+        updateRockCamScreen();
     }
 
-    private static void editRockCamScreen()
+    /**
+    * <summary>
+    * Changes the layer of the Rock Cam screen
+    * </summary>
+    */
+    private static void updateRockCamScreen()
     {
         try
         {
+            screenVisible = (bool)Mod.Settings[0].SavedValue;
             PlayerController playerController = Calls.Players.GetPlayerController();
             if (playerController is null)
             {
                 return;
             }
-            GameObject screen = playerController.gameObject.transform.GetChild(10).GetChild(2).GetChild(2).GetChild(0).GetChild(3).GetChild(0).gameObject;
-            screen.layer = LayerMask.NameToLayer("UI");
+            if (screen is null)
+            {
+                screen = playerController.gameObject.transform.GetChild(10).GetChild(2).GetChild(2).GetChild(0).GetChild(3).GetChild(0).gameObject;
+            }
+            if (screenVisible)
+            {
+                screen.layer = LayerMask.NameToLayer("UI");
+            }
+            else
+            {
+                screen.layer = LayerMask.NameToLayer("RecordingCamera");
+            }
         }
         catch (System.Exception e){}
     }
@@ -81,7 +155,7 @@ public partial class MainClass : MelonMod
         {
             if (Calls.Players.GetLocalPlayer() == player)
             {
-                editRockCamScreen();
+                updateRockCamScreen();
             }
         }
     }
