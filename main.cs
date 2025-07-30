@@ -1,4 +1,8 @@
-﻿using MelonLoader;
+﻿using HarmonyLib;
+using Il2CppRUMBLE.Players;
+using MelonLoader;
+using RumbleModdingAPI;
+using UnityEngine;
 
 namespace RecursiveRockCam;
 
@@ -47,6 +51,38 @@ public partial class MainClass : MelonMod
     */
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {
+        editRockCamScreen();
+    }
 
+    private static void editRockCamScreen()
+    {
+        try
+        {
+            PlayerController playerController = Calls.Players.GetPlayerController();
+            if (playerController is null)
+            {
+                return;
+            }
+            GameObject screen = playerController.gameObject.transform.GetChild(10).GetChild(2).GetChild(2).GetChild(0).GetChild(3).GetChild(0).gameObject;
+            screen.layer = LayerMask.NameToLayer("UI");
+        }
+        catch (System.Exception e){}
+    }
+
+    /**
+    * <summary>
+    * Harmony patch that is called when the local player is initialized
+    * </summary>
+    */
+    [HarmonyPatch(typeof(PlayerController), "Initialize", new System.Type[] { typeof(Player) })]
+    public static class playerspawn
+    {
+        private static void Postfix(ref PlayerController __instance, ref Player player)
+        {
+            if (Calls.Players.GetLocalPlayer() == player)
+            {
+                editRockCamScreen();
+            }
+        }
     }
 }
