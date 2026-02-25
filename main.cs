@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using Il2CppRUMBLE.Players;
 using MelonLoader;
-using RumbleModdingAPI;
+using RumbleModdingAPI.RMAPI;
 using UnityEngine;
 using RumbleModUI;
 
@@ -10,7 +10,7 @@ namespace RecursiveRockCam;
 public static class BuildInfo
 {
     public const string ModName = "RecursiveRockCam";
-    public const string ModVersion = "1.0.1";
+    public const string ModVersion = "1.1.0";
     public const string Description = "Makes the Rock Cam screen visible in Rock Cam";
     public const string Author = "Kalamart";
     public const string Company = "";
@@ -122,14 +122,14 @@ public partial class MainClass : MelonMod
         try
         {
             screenVisible = (bool)Mod.Settings[0].SavedValue;
-            PlayerController playerController = Calls.Players.GetPlayerController();
+            PlayerController playerController = Calls.Players.GetLocalPlayerController();
             if (playerController is null)
             {
                 return;
             }
             if (screen is null)
             {
-                screen = playerController.gameObject.transform.GetChild(10).GetChild(2).GetChild(2).GetChild(0).GetChild(3).GetChild(0).gameObject;
+                screen = playerController.gameObject.transform.GetChild(7).GetChild(0).GetChild(2).GetChild(0).GetChild(3).GetChild(0).gameObject;
             }
             if (screenVisible)
             {

@@ -1,3 +1,6 @@
+# Version 1.1.0
+- Fixed the mod for v0.5
+
 # Version 1.0.1
 - Made the effect toggleable via ModUI
 
