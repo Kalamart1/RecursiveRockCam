@@ -1,55 +1,37 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RumblePath>Z:\RUMBLE\RUMBLE_install</RumblePath>
+  </PropertyGroup>
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>0</WarningLevel>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <ImplicitUsings>disable</ImplicitUsings>
-  </PropertyGroup>
-
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>Z:\RUMBLE\RUMBLE_install\MelonLoader\net6\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="Il2CppBucketheadEntertainment.Plugins">
-      <HintPath>Z:\RUMBLE\RUMBLE_install\MelonLoader\Il2CppAssemblies\Il2CppBucketheadEntertainment.Plugins.dll</HintPath>
-    </Reference>
-    <Reference Include="Il2CppRUMBLE.Plugins">
-      <HintPath>Z:\RUMBLE\RUMBLE_install\MelonLoader\Il2CppAssemblies\Il2CppRUMBLE.Plugins.dll</HintPath>
-    </Reference>
-    <Reference Include="Il2CppRUMBLE.Runtime">
-      <HintPath>Z:\RUMBLE\RUMBLE_install\MelonLoader\Il2CppAssemblies\Il2CppRUMBLE.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Il2Cppmscorlib">
-      <HintPath>Z:\RUMBLE\RUMBLE_install\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
-    </Reference>
-    <Reference Include="Il2CppInterop.Runtime">
-      <HintPath>Z:\RUMBLE\RUMBLE_install\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="MelonLoader, Version=0.5.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Z:\RUMBLE\RUMBLE_install\MelonLoader\net6\MelonLoader.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Z:\RUMBLE\RUMBLE_install\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
+    <Reference Include="$(RumblePath)\MelonLoader\net6\**\*.dll" Private="false"/>
+    <Reference Include="$(RumblePath)\MelonLoader\net35\**\*.dll" Private="false"/>
+    <Reference Include="$(RumblePath)\MelonLoader\Il2CppAssemblies\**\*.dll" Private="false"/>
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="RumbleModdingAPI">
-      <HintPath>Z:\RUMBLE\RUMBLE_install\Mods\RumbleModdingAPI.dll</HintPath>
+      <HintPath>$(RumblePath)\Mods\RumbleModdingAPI.dll</HintPath>
     </Reference>
-    <Reference Include="ModUI">
-      <HintPath>Z:\RUMBLE\RUMBLE_install\Mods\ModUI.dll</HintPath>
+    <Reference Include="UIFramework">
+      <HintPath>$(RumblePath)\Mods\UIFramework.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;Z:\RUMBLE\RecursiveRockCam\obj\Debug\net6.0\RecursiveRockCam.dll&quot; &quot;Z:\RUMBLE\RUMBLE_install\Mods&quot; /Y" />
+    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(RumblePath)\Mods&quot; /Y"/>
   </Target>
 
 </Project>

@@ -3,23 +3,29 @@ using Il2CppRUMBLE.Players;
 using MelonLoader;
 using RumbleModdingAPI.RMAPI;
 using UnityEngine;
-using RumbleModUI;
+using UIFramework;
+using System.IO;
 
 namespace RecursiveRockCam;
 
 public static class BuildInfo
 {
     public const string ModName = "RecursiveRockCam";
-    public const string ModVersion = "1.1.0";
+    public const string ModVersion = "1.2.0";
     public const string Description = "Makes the Rock Cam screen visible in Rock Cam";
     public const string Author = "Kalamart";
     public const string Company = "";
 }
 public partial class MainClass : MelonMod
 {
-    public static Mod Mod = new Mod();
+    internal const string USER_DATA = "UserData/RecursiveRockCam/";
+    internal const string CONFIG_FILE = "config.cfg";
+
     public static bool screenVisible = true;
     public static GameObject screen = null;
+
+    internal static MelonPreferences_Category GeneralCategory;
+    internal static MelonPreferences_Entry<bool> ScreenVisible;
 
     /**
     * <summary>
@@ -51,39 +57,18 @@ public partial class MainClass : MelonMod
 
     /**
      * <summary>
-     * Specify the different options that will be used in the ModUI settings
+     * Initializes the MelonPreferences entries and creates the config file if it doesn't exist.
      * </summary>
      */
-    private void InitModUI()
+    private void PrefInit()
     {
-        UI.instance.UI_Initialized += OnUIInit;
-        SetUIOptions();
-    }
+        if (!Directory.Exists(USER_DATA))
+            Directory.CreateDirectory(USER_DATA);
 
-    /**
-     * <summary>
-     * Specify the different options that will be used in the ModUI settings
-     * </summary>
-     */
-    private void SetUIOptions()
-    {
-        Mod.ModName = BuildInfo.ModName;
-        Mod.ModVersion = BuildInfo.ModVersion;
+        GeneralCategory = MelonPreferences.CreateCategory("RecursiveRockCam", "General Settings");
+        GeneralCategory.SetFilePath(Path.Combine(USER_DATA, CONFIG_FILE));
 
-        Mod.SetFolder(BuildInfo.ModName);
-        Mod.AddToList("Screen visible", true, 0, "Make Rock Cam screen visible in Rock Cam recordings.", new Tags { });
-        Mod.GetFromFile();
-    }
-
-    /**
-     * <summary>
-     * Called when the actual ModUI window is initialized
-     * </summary>
-     */
-    private void OnUIInit()
-    {
-        Mod.ModSaved += OnUISaved;
-        UI.instance.AddMod(Mod);
+        ScreenVisible = GeneralCategory.CreateEntry("Screen visible", true, "Make Rock Cam screen visible in Rock Cam recordings.");
     }
 
     /**
@@ -97,19 +82,29 @@ public partial class MainClass : MelonMod
     }
 
     /**
+     * <summary>
+     * Called when the mod is initialized, before any scene is loaded.
+     * Initializes the MelonPreferences and registers the onsave event handler.
+     * </summary>
+     */
+    public override void OnInitializeMelon()
+    {
+        PrefInit();
+        UI.Register((MelonBase)this, GeneralCategory).OnModSaved += OnUISaved;
+    }
+
+    /**
     * <summary>
     * Called when the scene has finished loading.
     * </summary>
     */
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {
-        if (sceneName == "Loader")
+        if (sceneName != "Loader")
         {
-            InitModUI();
-            return;
+            screen = null;
+            updateRockCamScreen();
         }
-        screen = null;
-        updateRockCamScreen();
     }
 
     /**
@@ -121,7 +116,7 @@ public partial class MainClass : MelonMod
     {
         try
         {
-            screenVisible = (bool)Mod.Settings[0].SavedValue;
+            screenVisible = ScreenVisible.Value;
             PlayerController playerController = Calls.Players.GetLocalPlayerController();
             if (playerController is null)
             {
